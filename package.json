@@ -12,7 +12,7 @@
     ]
   },
   "scripts": {
-    "preinstall": "git submodule update -i -r"
+    "preinstall": "git submodule update --init --recursive"
   },
   "repository": {
     "type": "git",
