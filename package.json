@@ -11,6 +11,9 @@
       "ios"
     ]
   },
+  "scripts": {
+    "preinstall": "git submodule update -i -r"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kenshiYM/cordova-plugin-background-geolocation.git"
