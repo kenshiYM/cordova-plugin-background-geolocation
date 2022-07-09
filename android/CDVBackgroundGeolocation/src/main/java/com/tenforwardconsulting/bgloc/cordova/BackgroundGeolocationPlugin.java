@@ -1,12 +1,12 @@
 /*
-According to apache license
+ According to apache license
 
-This is fork of christocracy cordova-plugin-background-geolocation plugin
-https://github.com/christocracy/cordova-plugin-background-geolocation
+ This is fork of christocracy cordova-plugin-background-geolocation plugin
+ https://github.com/christocracy/cordova-plugin-background-geolocation
 
-Differences to original version:
+ Differences to original version:
 
-1. new methods isLocationEnabled, mMessageReciever, handleMessage
+ 1. new methods isLocationEnabled, mMessageReciever, handleMessage
 */
 
 package com.tenforwardconsulting.bgloc.cordova;
@@ -14,6 +14,12 @@ package com.tenforwardconsulting.bgloc.cordova;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
+import android.os.Build;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.marianhello.bgloc.BackgroundGeolocationFacade;
 import com.marianhello.bgloc.Config;
@@ -24,6 +30,7 @@ import com.marianhello.bgloc.cordova.PluginRegistry;
 import com.marianhello.bgloc.cordova.headless.JsEvaluatorTaskRunner;
 import com.marianhello.bgloc.data.BackgroundActivity;
 import com.marianhello.bgloc.data.BackgroundLocation;
+import com.marianhello.bgloc.data.PermissionStatus;
 import com.marianhello.logging.LogEntry;
 import com.marianhello.logging.LoggerManager;
 
@@ -48,6 +55,7 @@ public class BackgroundGeolocationPlugin extends CordovaPlugin implements Plugin
     public static final String STOP_EVENT = "stop";
     public static final String ABORT_REQUESTED_EVENT = "abort_requested";
     public static final String HTTP_AUTHORIZATION_EVENT = "http_authorization";
+    public static final String PERMISSION_EVENT = "permission";
 
     public static final String ACTION_START = "start";
     public static final String ACTION_STOP = "stop";
@@ -70,6 +78,16 @@ public class BackgroundGeolocationPlugin extends CordovaPlugin implements Plugin
     public static final String ACTION_END_TASK = "endTask";
     public static final String ACTION_REGISTER_HEADLESS_TASK = "registerHeadlessTask";
     public static final String ACTION_FORCE_SYNC = "forceSync";
+    public static final String ACTION_CHECK_FOREGROUND_PERMISSION = "checkForegroundPermission";
+    public static final String ACTION_CHECK_BACKGROUND_PERMISSION = "checkBackgroundPermission";
+    public static final String ACTION_REQUEST_FOREGROUND_PERMISSION = "requestForegroundPermission";
+    public static final String ACTION_REQUEST_BACKGROUND_PERMISSION = "requestBackgroundPermission";
+
+    private static final int FOREGROUND_PERMISSION_REQUEST_CODE = 0;
+    private static final int BACKGROUND_PERMISSION_REQUEST_CODE = 1;
+
+    private static final String HAS_REQUESTED_FOREGROUND_PERMISSION_KEY = "has_requested_foreground_permission";
+    private static final String HAS_REQUESTED_BACKGROUND_PERMISSION_KEY = "has_requested_background_permission";
 
     private BackgroundGeolocationFacade facade;
 
@@ -148,7 +166,8 @@ public class BackgroundGeolocationPlugin extends CordovaPlugin implements Plugin
         else if (ACTION_START.equals(action)) {
             runOnWebViewThread(new Runnable() {
                 public void run() {
-                    start();
+                    boolean skipPermissionCheck = data.optBoolean(0, false);
+                    start(skipPermissionCheck);
                 }
             });
 
@@ -349,13 +368,113 @@ public class BackgroundGeolocationPlugin extends CordovaPlugin implements Plugin
             logger.debug("Forced location sync requested");
             facade.forceSync();
             return true;
+        } else if (ACTION_CHECK_FOREGROUND_PERMISSION.equals(action)) {
+            logger.debug("check foreground permission requested");
+            checkForegroundLocationPermission();
+            return true;
+        } else if (ACTION_CHECK_BACKGROUND_PERMISSION.equals(action)) {
+            logger.debug("check background permission requested");
+            checkBackgroundLocationPermission();
+            return true;
+        } else if (ACTION_REQUEST_FOREGROUND_PERMISSION.equals(action)) {
+            logger.debug("request foreground permission requested");
+            cordova.requestPermission(this, FOREGROUND_PERMISSION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION);
+            return true;
+        } else if (ACTION_REQUEST_BACKGROUND_PERMISSION.equals(action)) {
+            logger.debug("request background permission requested");
+            cordova.requestPermission(this, BACKGROUND_PERMISSION_REQUEST_CODE, Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+            return true;
         }
-
         return false;
     }
 
-    private void start() {
-        facade.start();
+    public void onRequestPermissionResult(int requestCode, String[] permissions,
+                                         int[] grantResults) throws JSONException
+    {
+        boolean isGranted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+        switch (requestCode) {
+            case FOREGROUND_PERMISSION_REQUEST_CODE:
+                if (isGranted) {
+                    onPermissionChanged(new PermissionStatus("foreground", true));
+                } else {
+                    onPermissionChanged(new PermissionStatus("foreground", false, !ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)));
+                }
+                this.setHasRequestedForegroundPermission(true);
+                return;
+            case BACKGROUND_PERMISSION_REQUEST_CODE:
+                if (isGranted) {
+                    onPermissionChanged(new PermissionStatus("background", true));
+                } else {
+                    onPermissionChanged(new PermissionStatus("background", false, !ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)));
+                }
+                this.setHasRequestedBackgroundPermission(true);
+                return;
+        }
+    }
+
+    public void checkForegroundLocationPermission() {
+        logger.debug("Checking foreground permission");
+        boolean isFineLocationGranted = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        if (isFineLocationGranted) {
+            onPermissionChanged(new PermissionStatus("foreground", true));
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+            onPermissionChanged(new PermissionStatus("foreground", false));
+        } else {
+            if (this.hasRequestedForegroundPermission()) {
+                onPermissionChanged(new PermissionStatus("foreground", false, true));
+            } else {
+                onPermissionChanged(new PermissionStatus("foreground", false));
+            }
+        }
+    }
+
+    public void checkBackgroundLocationPermission() {
+        logger.debug("Checking background permission");
+        // if Android < 10 don't need to background location permission -> granted by default
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            onPermissionChanged(new PermissionStatus("background", true));
+            return;
+        }
+        boolean isBackgroundLocationGranted = ContextCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        if (isBackgroundLocationGranted) {
+            onPermissionChanged(new PermissionStatus("background", true));
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+            onPermissionChanged(new PermissionStatus("background", false));
+        } else {
+            if (this.hasRequestedBackgroundPermission()) {
+                onPermissionChanged(new PermissionStatus("background", false, true));
+            } else {
+                onPermissionChanged(new PermissionStatus("background", false));
+            }
+        }
+    }
+
+    private boolean hasRequestedForegroundPermission() {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        return sharedPref.getBoolean(HAS_REQUESTED_FOREGROUND_PERMISSION_KEY, false);
+    }
+
+    private boolean hasRequestedBackgroundPermission() {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        return sharedPref.getBoolean(HAS_REQUESTED_BACKGROUND_PERMISSION_KEY, false);
+    }
+
+    private void setHasRequestedForegroundPermission(boolean value) {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(HAS_REQUESTED_FOREGROUND_PERMISSION_KEY, value);
+        editor.apply();
+    }
+
+    private void setHasRequestedBackgroundPermission(boolean value) {
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(HAS_REQUESTED_BACKGROUND_PERMISSION_KEY, value);
+        editor.apply();
+    }
+
+    private void start(boolean skipPermissionCheck) {
+        facade.start(skipPermissionCheck);
     }
 
     /**
@@ -516,6 +635,16 @@ public class BackgroundGeolocationPlugin extends CordovaPlugin implements Plugin
         json.put("authorization", facade.getAuthorizationStatus());
 
         return json;
+    }
+
+    @Override
+    public void onPermissionChanged(PermissionStatus permissionStatus) {
+        try {
+            sendEvent(PERMISSION_EVENT, permissionStatus.toJSONObject());
+        } catch (JSONException e) {
+            logger.error("Error converting permission status to json: {}", e.getMessage());
+            sendError(new PluginException(e.getMessage(), PluginException.JSON_ERROR));
+        }
     }
 
     @Override
