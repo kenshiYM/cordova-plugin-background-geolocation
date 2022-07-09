@@ -223,6 +223,8 @@ public class LocationServiceImpl extends Service implements ProviderDelegate, Lo
 
         registerReceiver(connectivityChangeReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         NotificationHelper.registerServiceChannel(this);
+
+        startForeground();
     }
 
     @Override
@@ -291,6 +293,8 @@ public class LocationServiceImpl extends Service implements ProviderDelegate, Lo
         if (containsMessage(intent)) {
             processMessage(getMessage(intent));
         }
+
+        startForeground();
 
         return START_STICKY;
     }

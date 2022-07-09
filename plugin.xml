@@ -25,7 +25,7 @@
     <!-- android -->
     <platform name="android">
         <preference name="GOOGLE_PLAY_SERVICES_VERSION" default="11+"/>
-        <preference name="ANDROID_SUPPORT_LIBRARY_VERSION" default="26+"/>
+        <preference name="ANDROID_SUPPORT_LIBRARY_VERSION" default="29+"/>
         <preference name="ICON" default="@mipmap/icon" />
         <preference name="SMALL_ICON" default="@mipmap/icon" />
         <preference name="ACCOUNT_NAME" default="@string/app_name" />
@@ -67,6 +67,7 @@
         <source-file src="android/common/src/main/java/com/marianhello/bgloc/data/LocationTemplateFactory.java" target-dir="src/com/marianhello/bgloc/data" />
         <source-file src="android/common/src/main/java/com/marianhello/bgloc/data/LocationTemplate.java" target-dir="src/com/marianhello/bgloc/data" />
         <source-file src="android/common/src/main/java/com/marianhello/bgloc/data/LocationTransform.java" target-dir="src/com/marianhello/bgloc/data" />
+        <source-file src="android/common/src/main/java/com/marianhello/bgloc/data/PermissionStatus.java" target-dir="src/com/marianhello/bgloc/data" />
         <source-file src="android/common/src/main/java/com/marianhello/bgloc/data/provider/ContentProviderLocationDAO.java" target-dir="src/com/marianhello/bgloc/data/provider" />
         <source-file src="android/common/src/main/java/com/marianhello/bgloc/data/provider/LocationContentProvider.java" target-dir="src/com/marianhello/bgloc/data/provider" />
         <source-file src="android/common/src/main/java/com/marianhello/bgloc/data/sqlite/SQLiteConfigurationContract.java" target-dir="src/com/marianhello/bgloc/data/sqlite" />
@@ -157,6 +158,7 @@
             <service
                 android:enabled="true"
                 android:exported="false"
+                android:foregroundServiceType="location"
                 android:name="com.marianhello.bgloc.service.LocationServiceImpl"
                 />
             <receiver
