@@ -441,7 +441,7 @@ public class BackgroundGeolocationFacade {
     }
 
     public boolean hasPermissions() {
-        return hasPermissions(getContext(), PERMISSIONS);
+        return hasPermissions(getContext(), FRONT_PERMISSIONS);
     }
 
     public boolean locationServicesEnabled() throws PluginException {
