@@ -56,14 +56,12 @@ public class BackgroundGeolocationFacade {
 
     public static final String[] PERMISSIONS = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            Manifest.permission.ACCESS_FINE_LOCATION
     };
 
     public static final String[] PERMISSIONS10 = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            Manifest.permission.ACCESS_FINE_LOCATION
     };
 
     private String[] PERMISSIONSNEW = PERMISSIONS;
