@@ -202,7 +202,11 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
                     }
                 }
             } else {
-                locationManager.requestLocationUpdates(locationManager.getBestProvider(criteria, true), mConfig.getInterval(), scaledDistanceFilter, this);
+                String provider = locationManager.getBestProvider(criteria, true);
+                if (locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER) && Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                    provider = LocationManager.GPS_PROVIDER;
+                }
+                locationManager.requestLocationUpdates(provider, mConfig.getInterval(), scaledDistanceFilter, this);
             }
         } catch (SecurityException e) {
             logger.error("Security exception: {}", e.getMessage());

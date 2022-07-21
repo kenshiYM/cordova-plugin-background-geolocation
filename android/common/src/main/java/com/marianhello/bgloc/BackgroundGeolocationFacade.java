@@ -235,34 +235,34 @@ public class BackgroundGeolocationFacade {
                 public void onPermissionGranted() {
                     logger.info("User granted requested front permissions");
                     // watch location mode changes
-                    registerLocationModeChangeReceiver();
-                    registerServiceBroadcast();
-                    startBackgroundService();
+                    // registerLocationModeChangeReceiver();
+                    // registerServiceBroadcast();
+                    // startBackgroundService();
                     // if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
                     //     // watch location mode changes
                     //     registerLocationModeChangeReceiver();
                     //     registerServiceBroadcast();
                     //     startBackgroundService();
                     // } else {
-                    //     PermissionManager backgroundPermissionManager = PermissionManager.getInstance(getContext());
-                    //     backgroundPermissionManager.checkPermissions(Arrays.asList(BACKGROUND_PERMISSIONS), new PermissionManager.PermissionRequestListener() {
-                    //         @Override
-                    //         public void onPermissionGranted() {
-                    //             logger.info("User granted requested background permissions");
-                    //             // watch location mode changes
-                    //             registerLocationModeChangeReceiver();
-                    //             registerServiceBroadcast();
-                    //             startBackgroundService();
-                    //         }
+                        PermissionManager backgroundPermissionManager = PermissionManager.getInstance(getContext());
+                        backgroundPermissionManager.checkPermissions(Arrays.asList(BACKGROUND_PERMISSIONS), new PermissionManager.PermissionRequestListener() {
+                            @Override
+                            public void onPermissionGranted() {
+                                logger.info("User granted requested background permissions");
+                                // watch location mode changes
+                                registerLocationModeChangeReceiver();
+                                registerServiceBroadcast();
+                                startBackgroundService();
+                            }
 
-                    //         @Override
-                    //         public void onPermissionDenied() {
-                    //             logger.info("User denied requested background permissions");
-                    //             if (mDelegate != null) {
-                    //                 mDelegate.onAuthorizationChanged(BackgroundGeolocationFacade.AUTHORIZATION_DENIED);
-                    //             }
-                    //         }
-                    //     });
+                            @Override
+                            public void onPermissionDenied() {
+                                logger.info("User denied requested background permissions");
+                                if (mDelegate != null) {
+                                    mDelegate.onAuthorizationChanged(BackgroundGeolocationFacade.AUTHORIZATION_DENIED);
+                                }
+                            }
+                        });
                     // }
                 }
 
