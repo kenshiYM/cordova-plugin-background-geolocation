@@ -134,8 +134,7 @@
             <service
                 android:name="com.marianhello.bgloc.sync.SyncService"
                 android:exported="true"
-                android:process=":sync"
-                tools:node="merge">
+                android:process=":sync">
                 <intent-filter>
                     <action android:name="android.content.SyncAdapter"/>
                 </intent-filter>
@@ -143,8 +142,7 @@
                     android:resource="@xml/syncadapter" />
             </service>
             <service
-                android:name="com.marianhello.bgloc.sync.AuthenticatorService"
-                tools:node="merge">
+                android:name="com.marianhello.bgloc.sync.AuthenticatorService">
                 <intent-filter>
                     <action android:name="android.accounts.AccountAuthenticator"/>
                 </intent-filter>
@@ -156,20 +154,17 @@
                 android:name="com.marianhello.bgloc.data.provider.LocationContentProvider"
                 android:authorities="@string/mauron85_bgloc_content_authority"
                 android:exported="false"
-                android:syncable="true"
-                tools:node="merge"/>
+                android:syncable="true"/>
             <service
                 android:enabled="true"
                 android:exported="false"
-                tools:node="merge"
                 android:foregroundServiceType="location"
                 android:name="com.marianhello.bgloc.service.LocationServiceImpl"
                 />
             <receiver
                   android:name="com.marianhello.bgloc.BootCompletedReceiver"
                   android:enabled="true"
-                  android:exported="true"
-                tools:node="merge">
+                  android:exported="true">
                <intent-filter>
                   <action android:name="android.intent.action.BOOT_COMPLETED" />
                </intent-filter>
