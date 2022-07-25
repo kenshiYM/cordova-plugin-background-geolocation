@@ -227,7 +227,7 @@ public class BackgroundGeolocationFacade {
             registerServiceBroadcast();
             startBackgroundService();
         } else {
-
+            PermissionManager frontPermissionManager = PermissionManager.getInstance(getContext());
             frontPermissionManager.checkPermissions(Arrays.asList(FRONT_PERMISSIONS), new PermissionManager.PermissionRequestListener() {
                 @Override
                 public void onPermissionGranted() {
