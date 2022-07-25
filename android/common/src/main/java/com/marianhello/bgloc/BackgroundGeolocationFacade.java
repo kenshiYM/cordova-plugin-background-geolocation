@@ -238,12 +238,12 @@ public class BackgroundGeolocationFacade {
                     // registerLocationModeChangeReceiver();
                     // registerServiceBroadcast();
                     // startBackgroundService();
-                    // if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                    //     // watch location mode changes
-                    //     registerLocationModeChangeReceiver();
-                    //     registerServiceBroadcast();
-                    //     startBackgroundService();
-                    // } else {
+                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                        // watch location mode changes
+                        registerLocationModeChangeReceiver();
+                        registerServiceBroadcast();
+                        startBackgroundService();
+                    } else {
                         PermissionManager backgroundPermissionManager = PermissionManager.getInstance(getContext());
                         backgroundPermissionManager.checkPermissions(Arrays.asList(BACKGROUND_PERMISSIONS), new PermissionManager.PermissionRequestListener() {
                             @Override
@@ -263,7 +263,7 @@ public class BackgroundGeolocationFacade {
                                 }
                             }
                         });
-                    // }
+                    }
                 }
 
                 @Override
