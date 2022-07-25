@@ -258,6 +258,7 @@ public class BackgroundGeolocationFacade {
                             @Override
                             public void onPermissionDenied() {
                                 logger.info("User denied requested background permissions");
+                                showDebugToast("User denied requested background permissions");
                                 if (mDelegate != null) {
                                     mDelegate.onAuthorizationChanged(BackgroundGeolocationFacade.AUTHORIZATION_DENIED);
                                 }
@@ -269,6 +270,7 @@ public class BackgroundGeolocationFacade {
                 @Override
                 public void onPermissionDenied() {
                     logger.info("User denied requested front permissions");
+                    showDebugToast("User denied requested front permissions");
                     if (mDelegate != null) {
                         mDelegate.onAuthorizationChanged(BackgroundGeolocationFacade.AUTHORIZATION_DENIED);
                     }

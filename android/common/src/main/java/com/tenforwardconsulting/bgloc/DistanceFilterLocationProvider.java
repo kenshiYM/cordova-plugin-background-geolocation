@@ -213,6 +213,7 @@ public class DistanceFilterLocationProvider extends AbstractLocationProvider imp
             }
         } catch (SecurityException e) {
             logger.error("Security exception: {}", e.getMessage());
+            showDebugToast("Security exception: " + e.getMessage());
             this.handleSecurityException(e);
         }
     }
