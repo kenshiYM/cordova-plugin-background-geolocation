@@ -230,9 +230,9 @@ public class BackgroundGeolocationFacade {
             List<String> permissions;
             PermissionManager frontPermissionManager = PermissionManager.getInstance(getContext());
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                permissions = Arrays.asList((FRONT_PERMISSIONS + BACKGROUND_PERMISSIONS));
+                permissions = Arrays.asList(FRONT_PERMISSIONS + BACKGROUND_PERMISSIONS);
             }else {
-                permissions = Arrays.asList((FRONT_PERMISSIONS));
+                permissions = Arrays.asList(FRONT_PERMISSIONS);
             }
 
             frontPermissionManager.checkPermissions(permissions, new PermissionManager.PermissionRequestListener() {
