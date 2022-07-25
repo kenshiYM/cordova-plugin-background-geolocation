@@ -17,7 +17,7 @@ import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import com.github.jparkie.promise.Promise;
@@ -227,15 +227,8 @@ public class BackgroundGeolocationFacade {
             registerServiceBroadcast();
             startBackgroundService();
         } else {
-            String[] permissions = [];
-            PermissionManager frontPermissionManager = PermissionManager.getInstance(getContext());
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                permissions = FRONT_PERMISSIONS + BACKGROUND_PERMISSIONS;
-            }else {
-                permissions = FRONT_PERMISSIONS;
-            }
 
-            frontPermissionManager.checkPermissions(Arrays.asList(permissions), new PermissionManager.PermissionRequestListener() {
+            frontPermissionManager.checkPermissions(Arrays.asList(FRONT_PERMISSIONS), new PermissionManager.PermissionRequestListener() {
                 @Override
                 public void onPermissionGranted() {
                     logger.info("User granted requested front permissions");
